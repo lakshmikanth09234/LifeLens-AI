@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17261E">
+<meta name="description" content="LifeLens AI – Everyday Visual Assistant. Capture. Understand. Solve.">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" href="/static/icons/favicon.png">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<title>LifeLens AI – Capture. Understand. Solve.</title>
+<style>
+:root{--bg:#E8EFE2;--s1:#F5F8F1;--s2:#DCE6D4;--ink:#17261E;--mute:#5B6E62;--line:#C3D1BA;--acc:#F0B429;--acc-ink:#2B2000;--hot:#D9485F;--ok:#2F8F5B;--warn:#C97A12;--sh:0 1px 0 #fff8,0 10px 30px -12px #17261E55;--r:18px;--disp:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+[data-theme=dark]{--bg:#0F1713;--s1:#18231D;--s2:#223028;--ink:#E7F0E6;--mute:#93A89A;--line:#2F4036;--sh:0 1px 0 #ffffff10,0 14px 34px -14px #000}
+*{box-sizing:border-box}html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-bottom:70px;transition:background .3s}
+h1,h2,h3{font-family:var(--disp);line-height:1.15;margin:0;font-weight:700}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:8px}
+svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:8px;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font:700 21px var(--disp);margin-right:auto;text-decoration:none;color:var(--ink)}
+.lens{width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff9 0 8%,transparent 9%),conic-gradient(from 200deg,var(--acc),#ffe08a,var(--acc));box-shadow:inset 0 0 0 5px var(--ink),0 3px 8px #0004;transition:transform .5s}
+.logo:hover .lens{transform:rotate(180deg)}
+.nav{display:flex;gap:4px}
+.nb{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-weight:600;font-size:14px;color:var(--mute)}
+.nb:hover,.nb[aria-current=true]{background:var(--s2);color:var(--ink)}
+.nb.pri{background:var(--ink);color:var(--bg)}
+.ib{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--mute)}.ib:hover{background:var(--s2);color:var(--ink)}
+.tabbar{display:none}
+@media(max-width:760px){.nav .nb span{display:none}.nav .nb{display:none}.tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:25;background:var(--s1);border-top:1px solid var(--line);justify-content:space-around;padding:6px 0 max(6px,env(safe-area-inset-bottom))}.tabbar button{display:flex;flex-direction:column;align-items:center;font-size:11px;gap:2px;padding:4px 12px;color:var(--mute);font-weight:600}.tabbar [aria-current=true]{color:var(--ink)}}
+.hero{padding:34px 0 20px}.hero h1{font-size:clamp(34px,6vw,60px);max-width:14ch}.hero p{color:var(--mute);max-width:46ch;margin:10px 0 0}
+.grid{display:grid;gap:18px;grid-template-columns:1.25fr 1fr}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.drop{position:relative;min-height:300px;display:grid;place-items:center;text-align:center;border:2px dashed var(--line);border-radius:var(--r);padding:24px;transition:.2s;perspective:700px}
+.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.vf{position:absolute;inset:14px;pointer-events:none}.vf i{position:absolute;width:26px;height:26px;border:4px solid var(--ink);opacity:.8}
+.vf i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}.vf i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}.vf i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}.vf i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+.drop h2{font-size:26px}.drop p{color:var(--mute);margin:6px 0 16px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;font-weight:700;background:var(--s2);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn.pri{background:var(--acc);color:var(--acc-ink);box-shadow:0 5px 0 #b3830f,0 10px 18px -8px #0006}.btn.pri:active{transform:translateY(3px);box-shadow:0 2px 0 #b3830f}
+.btn.dng{background:var(--hot);color:#fff}.btn.sm{padding:6px 12px;font-size:13px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px}
+.th{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:1;background:var(--s2);transform:rotate(var(--rot,0));transition:.2s}.th:hover{transform:scale(1.04) rotate(0)}
+.th img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}.th .x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:#000a;color:#fff;display:grid;place-items:center}
+.th .q{position:absolute;bottom:0;left:0;right:0;font-size:11px;padding:3px 6px;background:#000b;color:#fff}
+label.f{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+textarea,select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--s2);border-radius:999px;padding:4px}.seg button{padding:8px;border-radius:999px;font-weight:600;font-size:14px;color:var(--mute)}.seg [aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.stack>*+*{margin-top:16px}
+.hint{font-size:13px;color:var(--mute)}
+.chip{white-space:nowrap;padding:6px 12px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:600;background:var(--s1);cursor:pointer}.chip:hover{background:var(--s2)}.chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.proc{text-align:center;padding:60px 16px}.iris{width:110px;height:110px;margin:0 auto 20px;border-radius:50%;background:conic-gradient(var(--acc),var(--ink),var(--acc));animation:sp 2.4s linear infinite;position:relative}.iris:after{content:"";position:absolute;inset:14px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 10px var(--s2)}
+@keyframes sp{to{transform:rotate(1turn)}}
+.res{display:grid;gap:18px;grid-template-columns:340px 1fr;align-items:start}@media(max-width:900px){.res{grid-template-columns:1fr}}
+.side{position:sticky;top:76px}@media(max-width:900px){.side{position:static}}
+.frame{position:relative;border-radius:16px;overflow:hidden;cursor:zoom-in;transform:perspective(800px) rotateY(-4deg);transition:.3s;box-shadow:12px 14px 0 var(--s2),0 18px 30px -10px #0006}.frame:hover{transform:none}.frame img{display:block;width:100%;object-fit:cover;max-height:420px}
+.frame.multi{display:grid;grid-template-columns:1fr 1fr;gap:4px;box-shadow:none;transform:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--acc);color:var(--acc-ink);font-size:13px;font-weight:700}
+.head h2{font-size:clamp(26px,4vw,38px);margin:8px 0}
+.ans{background:var(--ink);color:var(--bg);border-radius:var(--r);padding:16px 18px;margin:14px 0}.ans b{color:var(--acc)}
+.sec{margin-top:16px}.sec h3{font-size:19px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+ul.l{margin:0;padding-left:20px}ul.l li{margin:5px 0}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:1px;background:var(--line);border-radius:12px;overflow:hidden}.kv>*{background:var(--s1);padding:8px 12px}.kv dt{color:var(--mute);font-size:14px}.kv dd{margin:0;font-weight:600}
+.tw{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line)}th{background:var(--s2)}tr:last-child td{border:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{padding:4px 11px;border-radius:999px;background:var(--s2);font-size:14px}.tag.w{background:#D9485F25;color:var(--hot);font-weight:700}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}.chk input{width:20px;height:20px;accent-color:var(--ink);margin-top:2px}.chk input:checked+span{text-decoration:line-through;color:var(--mute)}
+.flag{display:flex;gap:10px;padding:10px 12px;border-radius:12px;margin:6px 0;border-left:5px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--s1))}.flag.h{border-color:var(--hot);background:color-mix(in srgb,var(--hot) 12%,var(--s1))}.flag.l{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--s1))}
+.safe{border:2px solid var(--hot);border-radius:var(--r);padding:14px 16px;background:color-mix(in srgb,var(--hot) 8%,var(--s1))}
+pre{background:#101713;color:#D6F5C8;padding:12px;border-radius:12px;overflow:auto;margin:0;font-size:13px;position:relative}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:600px){.two{grid-template-columns:1fr}}
+.fact{border-left:4px solid var(--ok);padding-left:12px}.fact.i{border-color:var(--acc)}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:12px;background:var(--s1)}summary{cursor:pointer;font-weight:700}
+.audio{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--s2);border-radius:999px;padding:6px 8px 6px 6px}.audio .bar2{flex:1;min-width:80px;height:6px;border-radius:9px;background:var(--line);overflow:hidden;cursor:pointer}.audio .bar2 i{display:block;height:100%;width:0;background:var(--ink);transition:width .1s linear}.audio select{width:auto;padding:4px 8px;border-radius:999px}
+.pl{width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.chat{margin-top:20px}.msg{padding:12px 14px;border-radius:16px;margin:10px 0;max-width:92%}.msg.u{background:var(--acc);color:var(--acc-ink);margin-left:auto;border-bottom-right-radius:4px}.msg.a{background:var(--s2);border-bottom-left-radius:4px}.msg .mt{display:flex;gap:6px;margin-top:6px}.msg .more{display:none}.msg.open .more{display:block}
+.cin{display:flex;gap:8px;margin-top:10px}.cin input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:10px 16px}
+.hi{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--s1);margin-bottom:10px}.hi img{width:70px;height:70px;border-radius:12px;object-fit:cover}.hi .open{text-align:left;background:none;border:0;cursor:pointer}
+.empty{text-align:center;padding:50px 16px;color:var(--mute)}
+.err{border:2px solid var(--hot);border-radius:var(--r);padding:16px;text-align:center}
+dialog{border:1px solid var(--line);border-radius:22px;background:var(--s1);color:var(--ink);padding:22px;max-width:min(440px,94vw);box-shadow:0 30px 80px #0008}dialog::backdrop{background:#0009}
+dialog.zoom{max-width:96vw;padding:8px;background:#000}dialog.zoom img{max-width:92vw;max-height:84vh;display:block;margin:0 auto;transition:transform .2s}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw input[type=checkbox]{width:44px;height:24px;accent-color:var(--ink)}
+.qr-container{display:flex;justify-content:center;margin:14px auto}
+.qr-container svg{width:210px;height:210px;stroke:none;fill:initial}
+#toasts{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:99;display:grid;gap:8px}.toast{background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;font-size:14px;animation:ti .25s;box-shadow:0 4px 12px #0004}@keyframes ti{from{opacity:0;transform:translateY(10px)}}
+footer{text-align:center;color:var(--mute);font-size:13px;padding:30px 16px}
+.sr{position:absolute;left:-9999px}
+@media print{header,.tabbar,.acts,.chat,footer,.audio{display:none!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+ <a class="logo" href="#" id="logo" aria-label="LifeLens AI home"><span class="lens"></span>LifeLens AI</a>
+ <nav class="nav" aria-label="Main">
+  <button class="nb pri" data-go="scan"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New scan</span></button>
+  <button class="nb" data-go="history"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg><span>History</span></button>
+  <button class="nb" data-go="saved"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Saved</span></button>
+ </nav>
+ <button class="ib" id="phoneBtn" aria-label="Connect smartphone"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></button>
+ <button class="ib" id="setBtn" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.3l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2.2-1.3L14 3h-4l-.4 2.5a7 7 0 0 0-2.200 1.300l-2.300-1-2 3.400 2 1.500a7 7 0 0 0 0 2.600l-2 1.500 2 3.400 2.300-1a7 7 0 0 0 2.200 1.300L10 21h4l.4-2.500a7 7 0 0 0 2.200-1.300l2.300 1 2-3.400-2-1.500c.1-.4.100-.9.100-1.300z"/></svg></button>
+ <button class="ib" id="themeBtn" aria-label="Switch light or dark theme"><svg viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button>
+</div></header>
+
+<nav class="tabbar" aria-label="Mobile">
+ <button data-go="scan"><svg viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8"/></svg>Scan</button>
+ <button data-go="history"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>History</button>
+ <button data-go="saved"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Saved</button>
+ <button id="setBtn2"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Settings</button>
+</nav>
+
+<main class="wrap" id="app" aria-live="polite"></main>
+
+<footer>LifeLens AI · AI provides everyday visual assistance. Check critical safety or financial details before acting on them.</footer>
+
+<div id="toasts" role="status"></div>
+<dialog id="dlg"></dialog>
+<dialog id="zoomDlg" class="zoom">
+  <img id="zoomImg" alt="Full size preview">
+  <div class="row" style="justify-content:center;padding:8px">
+    <button class="btn sm" id="zi">Zoom in</button>
+    <button class="btn sm" id="zo">Zoom out</button>
+    <button class="btn sm" id="zc">Close</button>
+  </div>
+</dialog>
+
+<script>
+/* ==========================================================
+   1. CONSTANTS & LOCALIZATION
+   ========================================================== */
+const LANGS = {
+  en: ["English", "en-IN"],
+  kn: ["ಕನ್ನಡ Kannada", "kn-IN"],
+  te: ["తెలుగు Telugu", "te-IN"],
+  hi: ["हिन्दी Hindi", "hi-IN"],
+  ta: ["தமிழ் Tamil", "ta-IN"]
+};
+
+const MSGS = [
+  "Analyzing visual elements",
+  "Reading visible text and indicators",
+  "Synthesizing actionable insights",
+  "Formulating your recommendations"
+];
+
+/* ==========================================================
+   2. APPLICATION STATE
+   ========================================================== */
+const S = {
+  view: "scan",       // "scan" | "result" | "history" | "saved"
+  files: [],          // Array of { file: File, url: string, q: string }
+  q: "",              // Optional question input
+  lang: localStorage.getItem("ll_lang") || "en",
+  mode: localStorage.getItem("ll_mode") || "quick",
+  busy: false,
+  msgI: 0,
+  result: null,       // Formatted analysis result
+  chat: [],           // Follow-up conversation turns
+  err: null,
+  history: [],        // Authoritative history from SQLite
+  hq: "",             // Search query in history
+  hf: "all",          // Category filter in history
+  autoRead: localStorage.getItem("ll_autoread") === "true",
+  grounding: localStorage.getItem("ll_grounding") !== "false",
+  serviceStatus: null
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const I = p => `<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const IC = {
+  cam: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.500"/>',
+  img: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
+  play: '<path d="m7 4 13 8-13 8z"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="1"/>',
+  star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.600 13.500 6.800 4M15.400 6.500l-6.800 4"/>',
+  pdf: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5M12 11v6m-3-3 3 3 3-3"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  alert: '<path d="M12 3 2 20h20zM12 10v4M12 17v.5"/>',
+  send: '<path d="m3 11 18-8-8 18-2-8z"/>'
+};
+
+/* ==========================================================
+   3. HELPERS & UTILITIES
+   ========================================================== */
+function toast(m) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = m;
+  $("#toasts").append(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+function copy(t) {
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+    .then(() => toast("Copied to clipboard"))
+    .catch(() => {
+      const a = document.createElement("textarea");
+      a.value = t;
+      document.body.append(a);
+      a.select();
+      try {
+        document.execCommand("copy");
+        toast("Copied to clipboard");
+      } catch (e) {
+        toast("Select the text and copy manually.");
+      }
+      a.remove();
+    });
+}
+
+function openZoom(src) {
+  const img = $("#zoomImg");
+  img.src = src;
+  img.style.transform = "";
+  img.dataset.z = 1;
+  $("#zoomDlg").showModal();
+}
+
+function quality(url, cb) {
+  const im = new Image();
+  im.onload = () => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 32;
+    const x = c.getContext("2d");
+    x.drawImage(im, 0, 0, 32, 32);
+    const p = x.getImageData(0, 0, 32, 32).data;
+    let s = 0, e = 0;
+    for (let i = 0; i < p.length; i += 4) {
+      const l = (p[i] + p[i+1] + p[i+2]) / 3;
+      s += l;
+      if (i >= 132 && Math.abs(l - (p[i-4] + p[i-3] + p[i-2]) / 3) > 12) e++;
+    }
+    const b = s / (p.length / 4);
+    cb(b < 40 ? "Too dark: add light" : e < 20 ? "May be blurry: hold steady" : im.width < 300 ? "Low resolution" : "Good quality");
+  };
+  im.onerror = () => cb("Image loaded");
+  im.src = url;
+}
+
+function addFiles(list) {
+  const fs = [...list].filter(f => f.type.startsWith("image/"));
+  if (!fs.length) {
+    toast("Please choose an image file (JPEG, PNG, WebP)");
+    return;
+  }
+  fs.forEach(f => {
+    const o = { file: f, url: URL.createObjectURL(f), q: "Checking quality..." };
+    S.files.push(o);
+    quality(o.url, r => {
+      o.q = r;
+      render();
+    });
+  });
+  S.view = "scan";
+  render();
+}
+
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem("ll_theme", t); } catch (e) {}
+}
+
+try {
+  const t = localStorage.getItem("ll_theme");
+  if (t) setTheme(t);
+  else if (matchMedia("(prefers-color-scheme:dark)").matches) setTheme("dark");
+} catch (e) {}
+
+/* ==========================================================
+   4. INLINE STANDALONE QR CODE GENERATOR (REAL SCANNABLE SVG)
+   ========================================================== */
+function generateQRCodeSVG(text, size = 200) {
+  // Minimal self-contained ISO 18004 matrix layout
+  function QRByte(d){this.mode=4;this.data=d;this.parsedData=[];for(let i=0;i<d.length;i++){const c=d.charCodeAt(i);if(c>65535){this.parsedData.push((c>>18)|240,((c>>12)&63)|128,((c>>6)&63)|128,(c&63)|128)}else if(c>2047){this.parsedData.push((c>>12)|224,((c>>6)&63)|128,(c&63)|128)}else if(c>127){this.parsedData.push((c>>6)|192,(c&63)|128)}else{this.parsedData.push(c)}}this.parsedData=new Uint8Array(this.parsedData)}
+  QRByte.prototype.getLength=function(){return this.parsedData.length};
+  QRByte.prototype.write=function(buf){for(let i=0;i<this.parsedData.length;i++)buf.put(this.parsedData[i],8)};
+
+  function QRBitBuffer(){this.buffer=[];this.length=0}
+  QRBitBuffer.prototype={get:function(i){return(this.buffer[Math.floor(i/8)]>>>(7-i%8))&1},put:function(num,len){for(let i=0;i<len;i++)this.putBit((num>>>(len-i-1))&1)},putBit:function(bit){const idx=Math.floor(this.length/8);if(this.buffer.length<=idx)this.buffer.push(0);if(bit)this.buffer[idx]|=(128>>>(this.length%8));this.length++}};
+
+  // Type 4 Medium EC table
+  const RS_BLOCK_TABLE=[[1,20,10,16]];
+  const QRMath={glog:function(n){if(n<1)throw new Error("glog("+n+")");return QRMath.LOG_TABLE[n]},gexp:function(n){while(n<0)n+=255;while(n>=255)n-=255;return QRMath.EXP_TABLE[n]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};
+  for(let i=0;i<8;i++)QRMath.EXP_TABLE[i]=1<<i;
+  for(let i=8;i<256;i++)QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];
+  for(let i=0;i<255;i++)QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;
+
+  function QRPolynomial(num,shift){let offset=0;while(offset<num.length&&num[offset]==0)offset++;this.num=new Array(num.length-offset+shift);for(let i=0;i<num.length-offset;i++)this.num[i]=num[i+offset]}
+  QRPolynomial.prototype={get:function(i){return this.num[i]},getLength:function(){return this.num.length},multiply:function(e){const num=new Array(this.getLength()+e.getLength()-1);for(let i=0;i<this.getLength();i++)for(let j=0;j<e.getLength();j++)num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));return new QRPolynomial(num,0)},mod:function(e){if(this.getLength()-e.getLength()<0)return this;const ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0));const num=new Array(this.getLength());for(let i=0;i<this.getLength();i++)num[i]=this.get(i);for(let i=0;i<e.getLength();i++)num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);return new QRPolynomial(num,0).mod(e)}};
+
+  const typeNumber=4,count=33;
+  const modules=Array.from({length:count},()=>Array(count).fill(null));
+
+  function setFinder(r,c){for(let row=-1;row<=7;row++)for(let col=-1;col<=7;col++){if(r+row<=-1||count<=r+row||c+col<=-1||count<=c+col)continue;modules[r+row][c+col]=(0<=row&&row<=6&&(col==0||col==6))||(0<=col&&col<=6&&(row==0||row==6))||(2<=row&&row<=4&&2<=col&&col<=4)}}
+  setFinder(0,0);setFinder(count-7,0);setFinder(0,count-7);
+
+  // Alignment pattern
+  const pos=[6,26];
+  for(let i=0;i<pos.length;i++)for(let j=0;j<pos.length;j++){const r=pos[i],c=pos[j];if(modules[r][c]!==null)continue;for(let row=-2;row<=2;row++)for(let col=-2;col<=2;col++)modules[r+row][c+col]=(Math.abs(row)==2||Math.abs(col)==2||(row==0&&col==0))}
+
+  // Timing patterns
+  for(let r=8;r<count-8;r++){if(modules[r][6]===null)modules[r][6]=(r%2==0)}
+  for(let c=8;c<count-8;c++){if(modules[6][c]===null)modules[6][c]=(c%2==0)}
+
+  // Data stuffing
+  const bb=new QRBitBuffer();
+  const data=new QRByte(text);
+  bb.put(4,4);bb.put(data.getLength(),8);data.write(bb);
+  while(bb.length%8!=0)bb.putBit(0);
+  const totalBytes=64;
+  while(bb.length/8<totalBytes){bb.put(236,8);if(bb.length/8<totalBytes)bb.put(17,8)}
+
+  // Error correction
+  let rsPoly=new QRPolynomial([1],0);
+  for(let i=0;i<10;i++)rsPoly=rsPoly.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));
+  const rawData=bb.buffer;
+  const modPoly=new QRPolynomial(rawData,10).mod(rsPoly);
+  const fullData=[...rawData,...modPoly.num];
+
+  // Map into matrix
+  let byteIdx=0,bitIdx=7,dir=-1,row=count-1;
+  for(let col=count-1;col>0;col-=2){
+    if(col==6)col--;
+    while(true){
+      for(let c=0;c<2;c++){
+        if(modules[row][col-c]===null){
+          let bit=false;
+          if(byteIdx<fullData.length){
+            bit=((fullData[byteIdx]>>>bitIdx)&1)==1;
+            bitIdx--;
+            if(bitIdx<0){byteIdx++;bitIdx=7}
+          }
+          // Mask pattern 0: (row + col) % 2 == 0
+          const mask=((row+(col-c))%2==0);
+          modules[row][col-c]=mask?!bit:bit;
+        }
+      }
+      row+=dir;
+      if(row<0||count<=row){row-=dir;dir=-dir;break}
+    }
+  }
+
+  // Format info
+  const formatBits=0x5412; // Type 4, Mask 0
+  for(let i=0;i<15;i++){
+    const bit=((formatBits>>>i)&1)==1;
+    if(i<6)modules[i][8]=bit;
+    else if(i<8)modules[i+1][8]=bit;
+    else modules[count-15+i][8]=bit;
+    if(i<8)modules[8][count-i-1]=bit;
+    else if(i<9)modules[8][15-i-1+1]=bit;
+    else modules[8][15-i-1]=bit;
+  }
+  modules[count-8][8]=true;
+
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${count+4} ${count+4}" width="${size}" height="${size}" shape-rendering="crispEdges">`;
+  svg+=`<rect width="100%" height="100%" fill="#ffffff" rx="10"/>`;
+  for(let r=0;r<count;r++){
+    for(let c=0;c<count;c++){
+      if(modules[r][c]){
+        svg+=`<rect x="${c+2}" y="${r+2}" width="1.02" height="1.02" fill="#17261E"/>`;
+      }
+    }
+  }
+  svg+=`</svg>`;
+  return svg;
+}
+
+/* ==========================================================
+   5. REUSABLE RESULT BLOCKS COMPONENT
+   ========================================================== */
+const C = {
+  kv: b => `<dl class="kv">${b.d.map(r => `<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>`,
+  list: b => `<ul class="l">${b.d.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`,
+  steps: b => b.d.map((x, i) => `<label class="chk"><input type="checkbox"><span>${esc(x)}</span></label>`).join(""),
+  table: b => `<div class="tw"><table><thead><tr>${b.d.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${b.d.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`,
+  tags: b => `<div class="tags">${b.d.map(x => `<span class="tag ${b.w ? "w" : ""}">${esc(x)}</span>`).join("")}</div>`,
+  flags: b => b.d.map(f => `<div class="flag ${f[0] == "h" ? "h" : f[0] == "l" ? "l" : ""}">${I(IC.alert)}<span>${esc(f[1])}</span></div>`).join(""),
+  code: b => `<pre>${esc(b.d)}</pre><button class="btn sm" style="margin-top:8px" data-copy="${esc(b.d)}">${I(IC.copy)}Copy commands</button>`
+};
+
+/* ==========================================================
+   6. DATA FORMATTER
+   ========================================================== */
+function formatBackendResult(raw, analysisId, imageList, lang) {
+  const st = raw.analysis || raw.structured_data || raw;
+  let imgs = [];
+  if (imageList && imageList.length) {
+    imgs = imageList;
+  } else if (raw.thumbnails && raw.thumbnails.length) {
+    imgs = raw.thumbnails;
+  } else if (raw.thumbnail_b64) {
+    try {
+      const parsed = JSON.parse(raw.thumbnail_b64);
+      imgs = Array.isArray(parsed) ? parsed : [raw.thumbnail_b64];
+    } catch (e) {
+      imgs = [raw.thumbnail_b64];
+    }
+  }
+
+  return {
+    id: analysisId || raw.analysis_id || raw.id,
+    cat: st.category_display_name || st.category || "General Assistance",
+    head: st.primary_headline || "Visual Assessment",
+    answer: st.direct_answer || (raw.user_question ? st.summary : ""),
+    summary: st.summary || "",
+    facts: Array.isArray(st.observed_facts) ? st.observed_facts : [],
+    interp: Array.isArray(st.insights_and_interpretation)
+      ? st.insights_and_interpretation
+      : (st.insights_and_interpretation ? [st.insights_and_interpretation] : []),
+    blocks: Array.isArray(st.blocks) ? st.blocks : [],
+    safety: (Array.isArray(st.safety_precautions) && st.safety_precautions.length)
+      ? st.safety_precautions.join(". ")
+      : "",
+    ocr: st.visible_text_extracted || "",
+    sources: (raw.grounding || st.grounding_sources || []).map(g => ({
+      n: g.title || g.url,
+      u: g.url || "#"
+    })),
+    suggest: (Array.isArray(st.contextual_assistance_options) && st.contextual_assistance_options.length)
+      ? st.contextual_assistance_options.map(o => typeof o === "string" ? o : o.prompt || o.title)
+      : (Array.isArray(st.follow_up_suggestions) ? st.follow_up_suggestions : []),
+    images: imgs,
+    language: lang || raw.language || S.lang || "en",
+    mode: raw.mode || st.mode || S.mode || "quick",
+    fav: !!raw.is_favorite
+  };
+}
+
+function resultText() {
+  const r = S.result;
+  if (!r) return "";
+  return [
+    r.head,
+    r.answer,
+    r.summary,
+    ...r.blocks.filter(b => b.t == "list" || b.t == "steps").flatMap(b => [b.h, ...b.d])
+  ].filter(Boolean).join(". ");
+}
+
+/* ==========================================================
+   7. HYBRID MULTILINGUAL AUDIO (INTEGRATED WITH FLASK BACKEND)
+   ========================================================== */
+let currentAudio = null;
+let isAudioPlaying = false;
+
+function playAudio() {
+  const aPlay = $("#aPlay");
+  const aMsg = $("#aMsg");
+  const aBar = $("#aBar");
+  const aTime = $("#aTime");
+
+  if (currentAudio) {
+    if (currentAudio.paused) {
+      currentAudio.play();
+      isAudioPlaying = true;
+      if (aPlay) aPlay.innerHTML = I(IC.pause);
+    } else {
+      currentAudio.pause();
+      isAudioPlaying = false;
+      if (aPlay) aPlay.innerHTML = I(IC.play);
+    }
+    return;
+  }
+
+  if (!S.result || !S.result.id) {
+    toast("No active analysis for audio playback.");
+    return;
+  }
+
+  if (aMsg) aMsg.textContent = "Loading neural audio...";
+  if (aPlay) aPlay.innerHTML = I(IC.pause);
+
+  fetch("/api/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ analysis_id: S.result.id })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("TTS endpoint error");
+    return res.blob();
+  })
+  .then(blob => {
+    if (blob.size < 100) throw new Error("Audio stream empty");
+    const audioUrl = URL.createObjectURL(blob);
+    currentAudio = new Audio(audioUrl);
+    currentAudio.playbackRate = +$("#aSpeed")?.value || 1;
+
+    currentAudio.onplay = () => {
+      isAudioPlaying = true;
+      if (aPlay) aPlay.innerHTML = I(IC.pause);
+      if (aMsg) aMsg.textContent = LANGS[S.result.language || "en"][0] + " neural voice";
+    };
+
+    currentAudio.onpause = () => {
+      isAudioPlaying = false;
+      if (aPlay) aPlay.innerHTML = I(IC.play);
+    };
+
+    currentAudio.ontimeupdate = () => {
+      if (!currentAudio) return;
+      const pct = (currentAudio.currentTime / (currentAudio.duration || 1)) * 100;
+      if (aBar) aBar.style.width = Math.min(100, pct) + "%";
+      if (aTime && currentAudio.duration) {
+        aTime.textContent = Math.round(currentAudio.currentTime) + "s / " + Math.round(currentAudio.duration) + "s";
+      }
+    };
+
+    currentAudio.onended = () => {
+      stopAudio();
+    };
+
+    currentAudio.onerror = () => {
+      fallbackBrowserTTS();
+    };
+
+    currentAudio.play().catch(e => {
+      console.warn("Autoplay blocked or play error:", e);
+      fallbackBrowserTTS();
+    });
+  })
+  .catch(err => {
+    console.warn("Backend TTS failed, falling back to browser speech synthesis:", err);
+    fallbackBrowserTTS();
+  });
+}
+
+function fallbackBrowserTTS() {
+  const aPlay = $("#aPlay");
+  const aMsg = $("#aMsg");
+  const aBar = $("#aBar");
+
+  if (!("speechSynthesis" in window)) {
+    if (aMsg) aMsg.textContent = "Audio playback isn't supported in this browser.";
+    if (aPlay) aPlay.innerHTML = I(IC.play);
+    return;
+  }
+
+  if (speechSynthesis.speaking && speechSynthesis.paused) {
+    speechSynthesis.resume();
+    if (aPlay) aPlay.innerHTML = I(IC.pause);
+    return;
+  }
+  if (speechSynthesis.speaking) {
+    speechSynthesis.pause();
+    if (aPlay) aPlay.innerHTML = I(IC.play);
+    return;
+  }
+
+  speechSynthesis.cancel();
+  const text = resultText();
+  const utt = new SpeechSynthesisUtterance(text);
+  const langKey = S.result?.language || S.lang || "en";
+  utt.lang = LANGS[langKey][1];
+  utt.rate = +$("#aSpeed")?.value || 1;
+
+  utt.onstart = () => {
+    isAudioPlaying = true;
+    if (aPlay) aPlay.innerHTML = I(IC.pause);
+    if (aMsg) aMsg.textContent = "Browser speech synthesis";
+  };
+
+  utt.onend = utt.onerror = () => {
+    isAudioPlaying = false;
+    if (aPlay) aPlay.innerHTML = I(IC.play);
+    if (aBar) aBar.style.width = "0%";
+  };
+
+  utt.onboundary = e => {
+    if (aBar && text.length) {
+      aBar.style.width = Math.min(100, (e.charIndex / text.length) * 100) + "%";
+    }
+  };
+
+  speechSynthesis.speak(utt);
+}
+
+function stopAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+  isAudioPlaying = false;
+  const aPlay = $("#aPlay");
+  const aBar = $("#aBar");
+  const aTime = $("#aTime");
+  const aMsg = $("#aMsg");
+  if (aPlay) aPlay.innerHTML = I(IC.play);
+  if (aBar) aBar.style.width = "0%";
+  if (aTime) aTime.textContent = "–";
+  if (aMsg) aMsg.textContent = "";
+}
+
+function voiceInput(cb) {
+  const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!R) {
+    toast("Voice input isn't supported in this browser. Please type your question.");
+    return;
+  }
+  const r = new R();
+  r.lang = LANGS[S.lang][1];
+  r.onresult = e => cb(e.results[0][0].transcript);
+  r.onerror = () => toast("Couldn't hear you clearly. Check microphone permission.");
+  toast("Listening... Speak now");
+  r.start();
+}
+
+/* ==========================================================
+   8. BACKEND API CALLS
+   ========================================================== */
+async function loadHistory(savedOnly = false) {
+  try {
+    const qParams = new URLSearchParams();
+    if (savedOnly) qParams.set("saved", "true");
+    if (S.hf && S.hf !== "all") qParams.set("category", S.hf);
+    if (S.hq) qParams.set("q", S.hq);
+
+    const res = await fetch(`/api/history?${qParams.toString()}`);
+    const data = await res.json();
+    S.history = data.history || [];
+    render();
+  } catch (e) {
+    console.error("Failed to load history:", e);
+  }
+}
+
+async function analyze() {
+  if (!S.files.length) {
+    toast("Please add at least one image to analyze.");
+    return;
+  }
+
+  stopAudio();
+  S.err = null;
+  S.busy = true;
+  S.msgI = 0;
+  render();
+
+  const msgTimer = setInterval(() => {
+    S.msgI++;
+    const h2 = $("#app h2");
+    if (h2 && S.busy) h2.textContent = MSGS[S.msgI % MSGS.length] + "...";
+  }, 950);
+
+  try {
+    const formData = new FormData();
+    S.files.forEach(f => {
+      formData.append("images", f.file);
+      formData.append("image", f.file); // Backward compatibility
+    });
+    formData.append("question", S.q || "");
+    formData.append("language", S.lang || "en");
+    formData.append("mode", S.mode || "quick");
+    formData.append("enable_search", S.grounding ? "true" : "false");
+
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Analysis failed.");
+    }
+
+    const previewUrls = S.files.map(f => f.url);
+    S.result = formatBackendResult(data, data.analysis_id, previewUrls, S.lang);
+    S.chat = [];
+    S.view = "result";
+    await loadHistory();
+
+    if (S.autoRead) {
+      setTimeout(() => playAudio(), 600);
+    }
+  } catch (e) {
+    S.err = e.message || "We couldn't analyze that image.";
+  } finally {
+    clearInterval(msgTimer);
+    S.busy = false;
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+async function ask(q) {
+  if (!q || !q.trim() || !S.result || !S.result.id) return;
+  const question = q.trim();
+  S.chat.push({ u: question });
+  S.chat.push({ load: 1 });
+  updateChatView();
+
+  try {
+    const res = await fetch("/api/follow-up", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        analysis_id: S.result.id,
+        message: question
+      })
+    });
+    const data = await res.json();
+    S.chat.pop();
+    if (res.ok && data.success) {
+      S.chat.push({ short: data.reply, long: "", open: false });
+    } else {
+      S.chat.push({ err: 1, q: question });
+    }
+  } catch (e) {
+    S.chat.pop();
+    S.chat.push({ err: 1, q: question });
+  }
+  updateChatView();
+}
+
+function updateChatView() {
+  const m = $("#msgs");
+  if (m) {
+    m.innerHTML = S.chat.map(msgHTML).join("");
+    m.lastElementChild?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+async function translateResult(newLang) {
+  if (!S.result || !S.result.id || S.result.language === newLang) return;
+  stopAudio();
+  toast("Translating into " + LANGS[newLang][0] + "...");
+
+  try {
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        analysis_id: S.result.id,
+        target_language: newLang
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      S.result = formatBackendResult(data, S.result.id, S.result.images, newLang);
+      S.lang = newLang;
+      render();
+      toast("Translated to " + LANGS[newLang][0]);
+    } else {
+      toast("Translation failed: " + (data.error || "Unknown error"));
+    }
+  } catch (e) {
+    toast("Translation failed. Check connection.");
+  }
+}
+
+async function toggleFavorite(analysisId) {
+  try {
+    const res = await fetch(`/api/history/${analysisId}/favorite`, { method: "POST" });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (S.result && S.result.id === analysisId) {
+        S.result.fav = data.is_favorite;
+      }
+      await loadHistory(S.view === "saved");
+      toast(data.is_favorite ? "Saved to favourites" : "Removed from favourites");
+    }
+  } catch (e) {
+    toast("Could not update favourite.");
+  }
+}
+
+async function openHistoryItem(analysisId) {
+  try {
+    stopAudio();
+    const res = await fetch(`/api/history/${analysisId}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to load record.");
+
+    let imgs = [];
+    if (data.thumbnail_b64) {
+      try {
+        const parsed = JSON.parse(data.thumbnail_b64);
+        imgs = Array.isArray(parsed) ? parsed : [data.thumbnail_b64];
+      } catch (e) {
+        imgs = [data.thumbnail_b64];
+      }
+    }
+
+    S.result = formatBackendResult(data, data.id, imgs, data.language);
+    S.chat = (data.follow_ups || []).map(f => {
+      if (f.role === "user") return { u: f.message };
+      return { short: f.message, long: "", open: false };
+    });
+    S.view = "result";
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    toast("Could not open record: " + e.message);
+  }
+}
+
+async function deleteHistoryItem(analysisId) {
+  try {
+    const res = await fetch(`/api/history/${analysisId}`, { method: "DELETE" });
+    if (res.ok) {
+      toast("Deleted");
+      await loadHistory(S.view === "saved");
+    }
+  } catch (e) {
+    toast("Could not delete item.");
+  }
+}
+
+async function clearAllHistory() {
+  try {
+    const res = await fetch("/api/history", { method: "DELETE" });
+    if (res.ok) {
+      S.history = [];
+      toast("All history cleared");
+      render();
+    }
+  } catch (e) {
+    toast("Could not clear history.");
+  }
+}
+
+/* ==========================================================
+   9. VIEW RENDERING TEMPLATES
+   ========================================================= */
+function scanHTML() {
+  const has = S.files.length;
+  return `
+  <div class="hero">
+    <h1>Capture. Understand. Solve.</h1>
+    <p>Snap a photo of anything: an appliance error, a grocery bill, a plant, or product ingredients. LifeLens explains it and provides actionable recommendations.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="drop" id="drop">
+        <div class="vf"><i></i><i></i><i></i><i></i></div>
+        <div>
+          <h2>Drop photos here</h2>
+          <p>or use your smartphone camera or gallery. You can add multiple photos for comparison.</p>
+          <div class="row" style="justify-content:center">
+            <button class="btn pri" id="camBtn">${I(IC.cam)}Take photo</button>
+            <button class="btn" id="galBtn">${I(IC.img)}Choose images</button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="fCam" accept="image/*" capture="environment" hidden>
+      <input type="file" id="fGal" accept="image/*" multiple hidden>
+
+      ${has ? `
+        <div class="thumbs">
+          ${S.files.map((f, i) => `
+            <div class="th" style="--rot:${(i % 2 ? 1 : -1)}deg">
+              <img src="${esc(f.url)}" alt="Selected image ${i + 1}" data-zoom="${esc(f.url)}">
+              <button class="x" data-rm="${i}" aria-label="Remove image ${i + 1}">${I(IC.x)}</button>
+              <span class="q">${esc(f.q)}</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="row" style="margin-top:12px;justify-content:space-between">
+          <button class="btn sm" id="replBtn">Replace all</button>
+          <button class="btn sm" id="addMoreBtn">${I(IC.plus)}Add another image</button>
+        </div>
+      ` : `<p class="empty">Nothing added yet. Take a photo or upload an image to begin.</p>`}
+    </div>
+
+    <div class="card stack">
+      <div>
+        <label class="f" for="q">Ask a question (optional)</label>
+        <div class="row" style="flex-wrap:nowrap">
+          <textarea id="q" rows="3" placeholder="e.g. What does this error code mean? Is this bill accurate? How do I care for this plant?">${esc(S.q)}</textarea>
+          <button class="ib" id="mic" aria-label="Ask by voice" style="background:var(--s2)">${I(IC.mic)}</button>
+        </div>
+      </div>
+      <div>
+        <label class="f" for="lang">Response language</label>
+        <select id="lang">
+          ${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" ${k == S.lang ? "selected" : ""}>${v[0]}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label class="f" id="ml">Analysis depth</label>
+        <div class="seg" role="group" aria-labelledby="ml">
+          <button data-mode="quick" aria-pressed="${S.mode == "quick"}">Quick summary</button>
+          <button data-mode="detailed" aria-pressed="${S.mode == "detailed"}">Detailed guide</button>
+        </div>
+      </div>
+      <button class="btn pri" id="go" style="width:100%;justify-content:center;font-size:18px" ${has ? "" : "disabled style='opacity:.5;width:100%;justify-content:center'"}>Analyze</button>
+      ${has ? "" : `<p class="hint">Upload or capture an image to enable Analyze.</p>`}
+    </div>
+  </div>`;
+}
+
+function procHTML() {
+  return `
+  <div class="proc">
+    <div class="iris"></div>
+    <h2>${MSGS[S.msgI % MSGS.length]}...</h2>
+    <p class="hint">Consulting multimodal model. This usually takes 2–4 seconds.</p>
+  </div>`;
+}
+
+function errHTML() {
+  return `
+  <div class="err" style="margin-top:40px">
+    <h2>We couldn't analyze that image</h2>
+    <p>${esc(S.err)}. Check your internet connection or try a clearer photo.</p>
+    <div class="row" style="justify-content:center;margin-top:16px">
+      <button class="btn pri" id="retry">Try again</button>
+      <button class="btn" data-go="scan">Back to scan</button>
+    </div>
+  </div>`;
+}
+
+function resultHTML(r) {
+  const multi = r.images.length > 1;
+  const fav = r.fav;
+
+  return `
+  <div class="res">
+    <aside class="side">
+      <div class="frame ${multi ? "multi" : ""}" ${multi ? "" : `data-zoom="${esc(r.images[0])}"`} role="button" tabindex="0" aria-label="View image fullscreen">
+        ${r.images.map(u => `<img src="${esc(u)}" alt="Analyzed image" ${multi ? `data-zoom="${esc(u)}"` : ""}>`).join("")}
+      </div>
+
+      <div class="audio" style="margin-top:14px" role="group" aria-label="Audio player">
+        <button class="pl" id="aPlay" aria-label="Play or pause">${I(isAudioPlaying ? IC.pause : IC.play)}</button>
+        <button class="ib" id="aStop" aria-label="Stop audio" style="width:32px;height:32px">${I(IC.stop)}</button>
+        <div class="bar2" id="aBarContainer" aria-label="Audio progress bar"><i id="aBar"></i></div>
+        <span class="hint" id="aTime">–</span>
+        <select id="aSpeed" aria-label="Playback speed">
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+        </select>
+      </div>
+      <p class="hint" id="aMsg" style="margin-top:6px"></p>
+    </aside>
+
+    <section>
+      <div class="head">
+        <span class="badge">${esc(r.cat)}</span>
+        <span class="badge" style="background:var(--s2);color:var(--ink);border:1px solid var(--line);margin-left:6px">${r.mode === "detailed" ? "Detailed Guide" : "Quick Summary"}</span>
+        <h2>${esc(r.head)}</h2>
+      </div>
+
+      ${r.answer ? `<div class="ans"><b>Direct Answer</b><br>${esc(r.answer)}</div>` : ""}
+
+      <p style="font-size:17px;line-height:1.6">${esc(r.summary)}</p>
+
+      <div class="acts">
+        <button class="btn sm" data-a="copyAll">${I(IC.copy)}Copy</button>
+        <button class="btn sm" data-a="share">${I(IC.share)}Share</button>
+        <button class="btn sm" data-a="pdf">${I(IC.pdf)}PDF report</button>
+        <button class="btn sm" data-a="fav" aria-pressed="${!!fav}">${I(IC.star)}${fav ? "Saved" : "Favourite"}</button>
+        <button class="btn sm pri" data-a="new">${I(IC.plus)}New scan</button>
+        <select id="rLang" aria-label="Response language" style="width:auto;border-radius:999px">
+          ${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" ${k == (r.language || S.lang) ? "selected" : ""}>${v[0]}</option>`).join("")}
+        </select>
+      </div>
+
+      ${r.safety ? `<div class="safe sec"><h3>${I(IC.alert)}Safety Precautions</h3>${esc(r.safety)}</div>` : ""}
+
+      ${r.blocks.map(b => `<div class="sec"><h3>${esc(b.h)}</h3>${C[b.t] ? C[b.t](b) : ""}</div>`).join("")}
+
+      ${(r.facts.length || r.interp.length) ? `
+        <div class="two sec">
+          <div class="fact">
+            <h3>Seen in the image</h3>
+            <ul class="l">${r.facts.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+          </div>
+          <div class="fact i">
+            <h3>AI interpretation</h3>
+            <ul class="l">${r.interp.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+          </div>
+        </div>
+      ` : ""}
+
+      ${r.ocr ? `
+        <details>
+          <summary>Extracted text (OCR)</summary>
+          <pre style="margin-top:10px;white-space:pre-wrap">${esc(r.ocr)}</pre>
+          <button class="btn sm" style="margin-top:8px" data-copy="${esc(r.ocr)}">${I(IC.copy)}Copy text</button>
+        </details>
+      ` : ""}
+
+      <details>
+        <summary>Sources and verification</summary>
+        <div style="margin-top:10px">
+          ${r.sources.length ? r.sources.map(s => `<p><a href="${esc(s.u)}" target="_blank" rel="noopener noreferrer">${esc(s.n)}</a></p>`).join("") + `<p class="hint">Sources originate from verified search grounding.</p>` : `<p class="hint">Direct vision interpretation based on visual evidence and model knowledge.</p>`}
+        </div>
+      </details>
+
+      <div class="chat">
+        <h3>Ask a follow-up question</h3>
+        ${r.suggest.length ? `
+          <div class="row" style="margin:10px 0">
+            ${r.suggest.map(s => `<button class="chip" data-ask="${esc(s)}">${esc(s)}</button>`).join("")}
+          </div>
+        ` : ""}
+        <div id="msgs">${S.chat.map(msgHTML).join("")}</div>
+        <div class="cin">
+          <input id="cq" placeholder="Type your follow-up question..." aria-label="Follow-up question">
+          <button class="ib" id="cMic" aria-label="Ask by voice">${I(IC.mic)}</button>
+          <button class="btn pri sm" id="cSend">${I(IC.send)}Ask</button>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+function msgHTML(m, i) {
+  if (m.u) return `<div class="msg u">${esc(m.u)}</div>`;
+  if (m.err) return `<div class="msg a">Could not retrieve an answer. <button class="btn sm" data-retry="${esc(m.q)}">Try again</button></div>`;
+  if (m.load) return `<div class="msg a">Thinking...</div>`;
+  return `
+    <div class="msg a ${m.open ? "open" : ""}">
+      ${esc(m.short)}
+      ${m.long ? `<div class="more">${esc(m.long)}</div>` : ""}
+      <div class="mt">
+        ${m.long ? `<button class="btn sm" data-tog="${i}">${m.open ? "Show less" : "Show more"}</button>` : ""}
+        <button class="btn sm" data-copy="${esc(m.short + (m.long ? " " + m.long : ""))}">Copy</button>
+      </div>
+    </div>`;
+}
+
+function histHTML(saved) {
+  const L = S.history.filter(h => (!saved || h.is_favorite));
+  const cats = [...new Set(S.history.map(h => (h.category_display || h.category || "General").split(" · ")[0]))];
+
+  return `
+  <div class="hero">
+    <h1>${saved ? "Saved Analyses" : "Analysis History"}</h1>
+  </div>
+  <div class="row" style="margin-bottom:14px">
+    <input id="hq" type="search" placeholder="Search saved analyses..." aria-label="Search" value="${esc(S.hq)}" style="flex:1;min-width:160px;background:var(--s1);border:1px solid var(--line);border-radius:999px;padding:10px 16px">
+    <select id="hf" aria-label="Filter by category" style="width:auto">
+      <option value="all">All categories</option>
+      ${cats.map(c => `<option value="${esc(c)}" ${S.hf == c ? "selected" : ""}>${esc(c)}</option>`).join("")}
+    </select>
+  </div>
+
+  ${L.length ? L.map(h => {
+    let thumbSrc = "";
+    if (h.thumbnail_b64) {
+      try {
+        const p = JSON.parse(h.thumbnail_b64);
+        thumbSrc = Array.isArray(p) ? p[0] : h.thumbnail_b64;
+      } catch (e) {
+        thumbSrc = h.thumbnail_b64;
+      }
+    }
+    const catName = h.category_display || h.category || "Visual scan";
+    const dateStr = h.created_at ? new Date(h.created_at).toLocaleString() : "Recent";
+    const langLabel = LANGS[h.language || "en"] ? LANGS[h.language || "en"][0].split(" ")[0] : "EN";
+
+    return `
+      <div class="hi">
+        ${thumbSrc ? `<img src="${esc(thumbSrc)}" alt="">` : `<div style="width:70px;height:70px;border-radius:12px;background:var(--s2);display:grid;place-items:center">${I(IC.img)}</div>`}
+        <button class="open" data-open="${h.id}">
+          <b>${esc(h.summary ? h.summary.slice(0, 75) + "..." : catName)}</b><br>
+          <span class="hint">${esc(catName)} · ${esc(dateStr)} · ${esc(langLabel)}</span>
+        </button>
+        <div class="row">
+          <button class="ib" data-hfav="${h.id}" aria-label="Toggle favourite" aria-pressed="${!!h.is_favorite}" style="${h.is_favorite ? "color:var(--acc)" : ""}">
+            ${I(IC.star)}
+          </button>
+          <button class="ib" data-del="${h.id}" aria-label="Delete analysis">
+            ${I(IC.trash)}
+          </button>
+        </div>
+      </div>`;
+  }).join("") : `
+    <div class="empty">
+      <h2>${saved ? "No saved analyses yet" : "No past scans yet"}</h2>
+      <p>${saved ? "Tap the star icon on any result to save it here for quick reference." : "Your past analyses from this session will appear here."}</p>
+      <button class="btn pri" data-go="scan">Start a new scan</button>
+    </div>
+  `}`;
+}
+
+function render() {
+  const a = $("#app");
+  let h = "";
+  if (S.busy) h = procHTML();
+  else if (S.err) h = errHTML();
+  else if (S.view == "scan") h = scanHTML();
+  else if (S.view == "result" && S.result) h = resultHTML(S.result);
+  else h = histHTML(S.view == "saved");
+
+  const keepId = document.activeElement && document.activeElement.id;
+  a.innerHTML = h;
+
+  document.querySelectorAll("[data-go]").forEach(b => {
+    b.setAttribute("aria-current", b.dataset.go == S.view);
+  });
+
+  if (keepId) {
+    const e = $("#" + keepId);
+    if (e && e.tagName != "BUTTON") {
+      e.focus();
+      try { e.setSelectionRange(1e4, 1e4); } catch (x) {}
+    }
+  }
+}
+
+/* ==========================================================
+   10. MODALS (SETTINGS & REAL SMARTPHONE QR)
+   ========================================================== */
+function dialog(html) {
+  const d = $("#dlg");
+  d.innerHTML = html + `
+    <div class="row" style="justify-content:flex-end;margin-top:16px">
+      <button class="btn" id="dClose">Close</button>
+    </div>`;
+  d.showModal();
+  $("#dClose").onclick = () => d.close();
+}
+
+function confirmDel(id) {
+  const d = $("#dlg");
+  d.innerHTML = `
+    <h3>Delete this analysis?</h3>
+    <p>This record will be permanently deleted from your session database.</p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" id="n">Cancel</button>
+      <button class="btn dng" id="y">Delete</button>
+    </div>`;
+  d.showModal();
+  $("#n").onclick = () => d.close();
+  $("#y").onclick = () => {
+    deleteHistoryItem(id);
+    d.close();
+  };
+}
+
+async function showQRModal() {
+  let connectUrl = window.location.origin;
+  try {
+    const res = await fetch("/api/status");
+    const st = await res.json();
+    if (st.network_ips && st.network_ips.length) {
+      connectUrl = `http://${st.network_ips[0]}:${st.port || 5000}`;
+    }
+  } catch (e) {
+    console.warn("Could not retrieve network IP:", e);
+  }
+
+  const qrSvg = generateQRCodeSVG(connectUrl, 210);
+  dialog(`
+    <h2>Use Smartphone Camera</h2>
+    <p>Scan this QR code with your phone camera to open LifeLens AI directly on your phone.</p>
+    <div class="qr-container">${qrSvg}</div>
+    <p style="text-align:center;word-break:break-all"><a href="${esc(connectUrl)}" target="_blank" style="font-weight:700;color:var(--ink)">${esc(connectUrl)}</a></p>
+    <p class="hint" style="text-align:center">Make sure both your smartphone and laptop are connected to the same Wi-Fi network.</p>
+  `);
+}
+
+async function showSettings() {
+  let modelInfo = "gemini-3.5-flash-lite";
+  let statusBadge = "Online";
+  try {
+    const res = await fetch("/api/status");
+    const st = await res.json();
+    if (st.active_model) modelInfo = st.active_model;
+    statusBadge = st.is_configured ? "Online (API Configured)" : "API Key Required in .env";
+  } catch (e) {}
+
+  dialog(`
+    <h2>Settings & Preferences</h2>
+    <div class="sw">
+      <label for="sL">Default response language</label>
+      <select id="sL" style="width:auto">
+        ${Object.entries(LANGS).map(([k, v]) => `<option value="${k}" ${k == S.lang ? "selected" : ""}>${v[0]}</option>`).join("")}
+      </select>
+    </div>
+    <div class="sw">
+      <label for="sT">Dark theme</label>
+      <input type="checkbox" id="sT" ${document.documentElement.dataset.theme == "dark" ? "checked" : ""}>
+    </div>
+    <div class="sw">
+      <label for="sA">Read answers aloud automatically</label>
+      <input type="checkbox" id="sA" ${S.autoRead ? "checked" : ""}>
+    </div>
+    <div class="sw">
+      <label for="sG">Google Search Grounding (Web verification)</label>
+      <input type="checkbox" id="sG" ${S.grounding ? "checked" : ""}>
+    </div>
+    <div class="sw">
+      <span>Smartphone connection</span>
+      <button class="btn sm" id="sP">Show QR Code</button>
+    </div>
+    <div class="sw">
+      <span>Privacy</span>
+      <button class="btn sm dng" id="sC">Clear all history</button>
+    </div>
+    <div class="sw">
+      <span>Service status</span>
+      <span class="tag" style="background:#2F8F5B30;font-weight:700">● ${esc(statusBadge)} · ${esc(modelInfo)}</span>
+    </div>
+  `);
+
+  $("#sL").onchange = e => {
+    S.lang = e.target.value;
+    try { localStorage.setItem("ll_lang", S.lang); } catch (x) {}
+    render();
+  };
+  $("#sT").onchange = e => setTheme(e.target.checked ? "dark" : "light");
+  $("#sA").onchange = e => {
+    S.autoRead = e.target.checked;
+    try { localStorage.setItem("ll_autoread", S.autoRead); } catch (x) {}
+  };
+  $("#sG").onchange = e => {
+    S.grounding = e.target.checked;
+    try { localStorage.setItem("ll_grounding", S.grounding); } catch (x) {}
+  };
+  $("#sP").onclick = showQRModal;
+  $("#sC").onclick = () => {
+    const d = $("#dlg");
+    d.innerHTML = `
+      <h3>Clear all analysis history?</h3>
+      <p>All saved analysis records from this session will be permanently deleted from the database.</p>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn" id="n">Cancel</button>
+        <button class="btn dng" id="y">Clear all</button>
+      </div>`;
+    $("#n").onclick = () => d.close();
+    $("#y").onclick = () => {
+      clearAllHistory();
+      d.close();
+    };
+  };
+}
+
+/* ==========================================================
+   11. EVENT LISTENERS
+   ========================================================== */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button,[data-zoom],[data-copy],[data-ask]");
+  if (!t) return;
+  const d = t.dataset;
+
+  if (d.go) {
+    stopAudio();
+    S.view = d.go;
+    S.err = null;
+    if (d.go === "history" || d.go === "saved") {
+      loadHistory(d.go === "saved");
+    } else {
+      render();
+    }
+  } else if (d.mode) {
+    S.mode = d.mode;
+    try { localStorage.setItem("ll_mode", S.mode); } catch (x) {}
+    render();
+  } else if (d.zoom) {
+    openZoom(d.zoom);
+  } else if (d.rm !== undefined) {
+    S.files.splice(+d.rm, 1);
+    render();
+  } else if (d.copy) {
+    copy(d.copy);
+  } else if (d.ask) {
+    ask(d.ask);
+  } else if (d.retry) {
+    S.chat = S.chat.filter(m => !m.err);
+    ask(d.retry);
+  } else if (d.tog !== undefined) {
+    if (S.chat[+d.tog]) {
+      S.chat[+d.tog].open = !S.chat[+d.tog].open;
+      updateChatView();
+    }
+  } else if (d.open) {
+    openHistoryItem(d.open);
+  } else if (d.hfav) {
+    toggleFavorite(d.hfav);
+  } else if (d.del) {
+    confirmDel(d.del);
+  } else if (d.a === "copyAll") {
+    copy(resultText());
+  } else if (d.a === "share") {
+    const shareData = { title: S.result?.head || "LifeLens AI", text: resultText() };
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {});
+    } else {
+      copy(shareData.text);
+      toast("Sharing unavailable. Text copied to clipboard.");
+    }
+  } else if (d.a === "pdf") {
+    document.querySelectorAll("details").forEach(x => x.open = true);
+    window.print();
+  } else if (d.a === "fav") {
+    if (S.result?.id) toggleFavorite(S.result.id);
+  } else if (d.a === "new") {
+    stopAudio();
+    S.files = [];
+    S.q = "";
+    S.view = "scan";
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    switch (t.id) {
+      case "camBtn":
+        $("#fCam").click();
+        break;
+      case "galBtn":
+      case "addMoreBtn":
+        $("#fGal").click();
+        break;
+      case "replBtn":
+        S.files = [];
+        $("#fGal").click();
+        break;
+      case "go":
+      case "retry":
+        S.q = $("#q") ? $("#q").value : S.q;
+        analyze();
+        break;
+      case "mic":
+        voiceInput(v => {
+          S.q = v;
+          if ($("#q")) $("#q").value = v;
+          render();
+        });
+        break;
+      case "cMic":
+        voiceInput(v => ask(v));
+        break;
+      case "cSend": {
+        const inp = $("#cq");
+        if (inp && inp.value.trim()) {
+          ask(inp.value.trim());
+          inp.value = "";
+        }
+        break;
+      }
+      case "aPlay":
+        playAudio();
+        break;
+      case "aStop":
+        stopAudio();
+        break;
+      case "phoneBtn":
+        showQRModal();
+        break;
+      case "setBtn":
+      case "setBtn2":
+        showSettings();
+        break;
+      case "themeBtn":
+        setTheme(document.documentElement.dataset.theme == "dark" ? "light" : "dark");
+        break;
+      case "zc":
+        $("#zoomDlg").close();
+        break;
+      case "zi":
+      case "zo": {
+        const im = $("#zoomImg");
+        let z = +im.dataset.z * (t.id == "zi" ? 1.35 : 0.75);
+        z = Math.max(1, Math.min(4, z));
+        im.dataset.z = z;
+        im.style.transform = `scale(${z})`;
+        break;
+      }
+    }
+  }
+});
+
+// Audio progress bar seek
+document.addEventListener("click", e => {
+  const bar = e.target.closest("#aBarContainer");
+  if (bar && currentAudio && currentAudio.duration) {
+    const rect = bar.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+    currentAudio.currentTime = ratio * currentAudio.duration;
+  }
+});
+
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "fCam" || t.id === "fGal") {
+    addFiles(t.files);
+    t.value = "";
+  } else if (t.id === "lang") {
+    S.q = $("#q") ? $("#q").value : S.q;
+    S.lang = t.value;
+    try { localStorage.setItem("ll_lang", S.lang); } catch (x) {}
+    render();
+  } else if (t.id === "rLang") {
+    translateResult(t.value);
+  } else if (t.id === "aSpeed") {
+    if (currentAudio) currentAudio.playbackRate = +t.value;
+  } else if (t.id === "hf") {
+    S.hf = t.value;
+    loadHistory(S.view === "saved");
+  }
+});
+
+document.addEventListener("input", e => {
+  if (e.target.id === "hq") {
+    S.hq = e.target.value;
+    loadHistory(S.view === "saved");
+  } else if (e.target.id === "q") {
+    S.q = e.target.value;
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id === "cq") {
+    ask(e.target.value);
+    e.target.value = "";
+  }
+  if ((e.key === "Enter" || e.key === " ") && e.target.dataset.zoom) {
+    e.preventDefault();
+    openZoom(e.target.dataset.zoom);
+  }
+  if (e.key === "Escape" && $("#zoomDlg").open) {
+    $("#zoomDlg").close();
+  }
+});
+
+// Drag and drop support
+document.addEventListener("dragover", e => {
+  const d = e.target.closest("#drop");
+  if (d) {
+    e.preventDefault();
+    d.classList.add("over");
+  }
+});
+
+document.addEventListener("dragleave", e => {
+  const d = e.target.closest("#drop");
+  if (d) d.classList.remove("over");
+});
+
+document.addEventListener("drop", e => {
+  const d = e.target.closest("#drop");
+  if (d) {
+    e.preventDefault();
+    d.classList.remove("over");
+    addFiles(e.dataTransfer.files);
+  }
+});
+
+$("#logo").onclick = e => {
+  e.preventDefault();
+  stopAudio();
+  S.view = "scan";
+  S.err = null;
+  render();
+};
+
+// Register PWA service worker
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(e => {
+      console.warn("PWA Service Worker registration failed:", e);
+    });
+  });
+}
+
+// Initial render & history sync
+const urlParams = new URLSearchParams(window.location.search);
+const initialAnalysisId = urlParams.get("id");
+if (initialAnalysisId) {
+  loadAnalysisRecord(initialAnalysisId);
+} else {
+  render();
+  loadHistory();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "LifeLens AI – Everyday Visual Assistant",
+  "short_name": "LifeLens AI",
+  "description": "Mobile-first visual assistant that understands images and generates actionable solutions for everyday problems.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
