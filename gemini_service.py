@@ -2,6 +2,7 @@ import os
 import json
 import re
 import time
+import random
 import logging
 from typing import Optional, Tuple, Dict, Any, List
 from google import genai
@@ -18,9 +19,10 @@ SUPPORTED_LANGUAGES = {
     "ta": {"name": "Tamil", "native": "தமிழ்", "instruction": "Respond entirely in fluent, natural Tamil (தமிழ்) script. Keep technical error codes, part numbers, and command syntax in English characters for accuracy."}
 }
 
-# Verified active models on Gemini Developer API
+# Verified active models on Gemini Developer API (free-tier compatible)
 CANDIDATE_MODELS = [
-    "gemini-3.5-flash-lite"
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash"
 ]
 
 ANALYSIS_JSON_SCHEMA = {
@@ -274,6 +276,84 @@ class GeminiService:
         self._active_model = CANDIDATE_MODELS[0]  # gemini-3.5-flash-lite
         return self._active_model
 
+    def _generate_with_fallback(
+        self,
+        client: genai.Client,
+        contents: Any,
+        config: types.GenerateContentConfig,
+        operation_name: str = "Generation",
+        deadline_seconds: float = 45.0,
+        max_attempts_per_model: int = 2
+    ) -> Tuple[Any, str]:
+        """
+        Executes generate_content across candidate models with exponential backoff,
+        random jitter, deadline enforcement, and automatic model switching.
+        Returns (response, model_used).
+        """
+        start_time = time.time()
+        primary_model = self.resolve_model()
+        candidates = [primary_model] + [m for m in CANDIDATE_MODELS if m != primary_model]
+
+        last_error = None
+
+        for model_idx, candidate_model in enumerate(candidates):
+            for attempt in range(max_attempts_per_model):
+                elapsed = time.time() - start_time
+                remaining = deadline_seconds - elapsed
+                if remaining < 2.5:
+                    logger.warning(f"{operation_name}: Processing deadline ({deadline_seconds}s) reached. Elapsed: {elapsed:.1f}s")
+                    raise TimeoutError(f"AI service processing deadline reached ({deadline_seconds}s). Service is currently experiencing high demand.")
+
+                try:
+                    logger.info(f"{operation_name}: Calling {candidate_model} (attempt {attempt+1}/{max_attempts_per_model}, elapsed {elapsed:.1f}s)...")
+                    response = client.models.generate_content(
+                        model=candidate_model,
+                        contents=contents,
+                        config=config
+                    )
+                    self._active_model = candidate_model
+                    logger.info(f"{operation_name}: Successfully received response from {candidate_model}")
+                    return response, candidate_model
+                except Exception as e:
+                    last_error = e
+                    err_str = str(e)
+                    is_transient = any(term in err_str for term in [
+                        "503", "UNAVAILABLE", "high demand", "429", "RESOURCE_EXHAUSTED",
+                        "500", "INTERNAL", "504", "DEADLINE_EXCEEDED"
+                    ])
+
+                    # Handle grounding-specific 429 if tools were configured
+                    if ("429" in err_str or "RESOURCE_EXHAUSTED" in err_str) and getattr(config, "tools", None):
+                        logger.warning(f"{operation_name}: Grounding-specific 429 on {candidate_model}. Retrying immediately without tools...")
+                        config.tools = None
+                        continue
+
+                    if is_transient:
+                        if attempt < max_attempts_per_model - 1:
+                            jitter = random.uniform(0.15, 0.65)
+                            backoff = min(1.2 * (2.0 ** attempt) + jitter, 4.0)
+                            if remaining - backoff > 2.0:
+                                logger.warning(
+                                    f"{operation_name}: Transient error on {candidate_model} (attempt {attempt+1}): {e}. "
+                                    f"Retrying in {backoff:.2f}s..."
+                                )
+                                time.sleep(backoff)
+                                continue
+
+                    next_idx = model_idx + 1
+                    if next_idx < len(candidates):
+                        next_model = candidates[next_idx]
+                        logger.warning(
+                            f"{operation_name}: Model {candidate_model} failed (attempt {attempt+1}): {e}. "
+                            f"Automatically falling back to next model: {next_model}"
+                        )
+                        break
+                    else:
+                        logger.error(f"{operation_name}: Model {candidate_model} failed and no more fallback models available.")
+                        break
+
+        raise RuntimeError(f"All candidate models failed. Last error: {str(last_error)}")
+
     def analyze_image(
         self,
         image_bytes: Optional[bytes] = None,
@@ -361,43 +441,24 @@ ANALYSIS MODE: QUICK SUMMARY.
         for b_data, m_type in img_list:
             contents.append(types.Part.from_bytes(data=b_data, mime_type=m_type))
 
-        parsed_json = None
-        last_error = None
-        candidate_list = [model_name] + [m for m in CANDIDATE_MODELS if m != model_name]
+        analysis_config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            response_mime_type="application/json",
+            response_json_schema=ANALYSIS_JSON_SCHEMA,
+            temperature=0.2
+        )
 
-        for candidate_model in candidate_list:
-            for attempt in range(4):
-                try:
-                    response = client.models.generate_content(
-                        model=candidate_model,
-                        contents=contents,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            response_mime_type="application/json",
-                            response_json_schema=ANALYSIS_JSON_SCHEMA,
-                            temperature=0.2
-                        )
-                    )
-                    raw_text = response.text or ""
-                    parsed_json = self._clean_and_parse_json(raw_text)
-                    self._active_model = candidate_model
-                    break
-                except Exception as e:
-                    err_str = str(e)
-                    last_error = e
-                    if ("503" in err_str or "UNAVAILABLE" in err_str or "429" in err_str) and attempt < 3:
-                        wait_time = [2.5, 5.0, 9.0][attempt]
-                        logger.warning(f"Transient spike on {candidate_model} (attempt {attempt+1}), pausing {wait_time}s before retry...")
-                        time.sleep(wait_time)
-                        continue
-                    logger.warning(f"Model {candidate_model} attempt {attempt+1} failed: {e}")
-                    break
+        response, model_used = self._generate_with_fallback(
+            client=client,
+            contents=contents,
+            config=analysis_config,
+            operation_name="Multimodal Analysis",
+            deadline_seconds=45.0,
+            max_attempts_per_model=2
+        )
 
-            if parsed_json:
-                break
-
-        if not parsed_json:
-            raise RuntimeError(f"Gemini analysis failed: {str(last_error)}")
+        raw_text = response.text or ""
+        parsed_json = self._clean_and_parse_json(raw_text)
 
         # Ensure UI blocks are populated
         parsed_json["mode"] = mode
@@ -419,12 +480,20 @@ ANALYSIS MODE: QUICK SUMMARY.
                 headline = parsed_json.get("primary_headline", "")
                 search_query = f"{headline} {category} official guide"
 
-            grounding_data, grounded_summary = self._run_grounding_search(client, self._active_model or model_name, search_query, language)
+            grounding_data, grounded_summary = self._run_grounding_search(client, model_used, search_query, language)
             if grounding_data:
                 is_grounded = True
                 parsed_json["grounding_sources"] = grounding_data
                 if grounded_summary:
                     parsed_json["grounded_verification"] = grounded_summary
+
+        return {
+            "analysis": parsed_json,
+            "grounding": grounding_data,
+            "is_grounded": is_grounded,
+            "model_used": model_used,
+            "language": language
+        }
 
         return {
             "analysis": parsed_json,
@@ -473,40 +542,22 @@ CRITICAL INSTRUCTIONS:
 Source JSON to translate:
 {json.dumps(structured_data, ensure_ascii=False)}
 """
-        parsed_json = None
-        last_error = None
-        candidate_list = [model_name] + [m for m in CANDIDATE_MODELS if m != model_name]
+        translate_config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0.1
+        )
 
-        for candidate_model in candidate_list:
-            for attempt in range(4):
-                try:
-                    response = client.models.generate_content(
-                        model=candidate_model,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.1
-                        )
-                    )
-                    raw_text = response.text or ""
-                    parsed_json = self._clean_and_parse_json(raw_text)
-                    self._active_model = candidate_model
-                    break
-                except Exception as e:
-                    err_str = str(e)
-                    last_error = e
-                    if ("503" in err_str or "UNAVAILABLE" in err_str or "429" in err_str) and attempt < 3:
-                        wait_time = [2.5, 5.0, 9.0][attempt]
-                        logger.warning(f"Translation spike on {candidate_model} (attempt {attempt+1}), pausing {wait_time}s before retry...")
-                        time.sleep(wait_time)
-                        continue
-                    logger.warning(f"Translation model {candidate_model} attempt {attempt+1} failed: {e}")
-                    break
-            if parsed_json:
-                break
+        response, model_used = self._generate_with_fallback(
+            client=client,
+            contents=prompt,
+            config=translate_config,
+            operation_name="Translation",
+            deadline_seconds=30.0,
+            max_attempts_per_model=2
+        )
 
-        if not parsed_json:
-            raise RuntimeError(f"Translation failed: {str(last_error)}")
+        raw_text = response.text or ""
+        parsed_json = self._clean_and_parse_json(raw_text)
 
         translated = parsed_json
         translated["intent_type"] = structured_data.get("intent_type", "general_assistance")
@@ -560,34 +611,21 @@ Be concise, helpful, and address the specific follow-up directly without repeati
 
         contents.append(types.Part.from_text(text=f"User's new question: {new_question}"))
 
-        last_error = None
-        candidate_list = [model_name] + [m for m in CANDIDATE_MODELS if m != model_name]
+        follow_up_config = types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            temperature=0.3
+        )
 
-        for candidate_model in candidate_list:
-            for attempt in range(4):
-                try:
-                    response = client.models.generate_content(
-                        model=candidate_model,
-                        contents=contents,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            temperature=0.3
-                        )
-                    )
-                    self._active_model = candidate_model
-                    return response.text or "I was unable to generate a response. Please try rephrasing."
-                except Exception as e:
-                    err_str = str(e)
-                    last_error = e
-                    if ("503" in err_str or "UNAVAILABLE" in err_str or "429" in err_str) and attempt < 3:
-                        wait_time = [2.5, 5.0, 9.0][attempt]
-                        logger.warning(f"Follow-up spike on {candidate_model} (attempt {attempt+1}), pausing {wait_time}s before retry...")
-                        time.sleep(wait_time)
-                        continue
-                    logger.warning(f"Follow-up model {candidate_model} attempt {attempt+1} failed: {e}")
-                    break
+        response, model_used = self._generate_with_fallback(
+            client=client,
+            contents=contents,
+            config=follow_up_config,
+            operation_name="Follow-up Answer",
+            deadline_seconds=35.0,
+            max_attempts_per_model=2
+        )
 
-        raise RuntimeError(f"Failed to answer follow-up: {str(last_error)}")
+        return response.text or "I was unable to generate a response. Please try rephrasing."
 
     def _run_grounding_search(
         self,
@@ -632,7 +670,11 @@ Be concise, helpful, and address the specific follow-up directly without repeati
             grounded_text = response.text if citations else None
             return citations[:6], grounded_text
         except Exception as e:
-            logger.info(f"Search grounding unavailable on current tier or quota ({e}). Proceeding without citations.")
+            err_msg = str(e)
+            if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+                logger.info(f"Search grounding quota reached (429). Proceeding cleanly without search citations.")
+            else:
+                logger.info(f"Search grounding unavailable on current tier or model ({err_msg}). Proceeding without citations.")
             return [], None
 
     def _clean_and_parse_json(self, raw_text: str) -> Dict[str, Any]:

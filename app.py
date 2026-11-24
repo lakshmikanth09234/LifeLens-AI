@@ -139,7 +139,20 @@ def analyze():
         )
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
-        return jsonify({"error": f"AI analysis failed: {str(e)}"}), 500
+        err_msg = str(e)
+        status_code = 500
+        if "503" in err_msg or "UNAVAILABLE" in err_msg or "high demand" in err_msg:
+            status_code = 503
+            user_msg = "The AI service is temporarily experiencing high demand. Please try again shortly."
+        elif "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+            status_code = 429
+            user_msg = "The AI service rate limit was momentarily exceeded. Please wait a moment and try again."
+        elif "deadline" in err_msg.lower() or "timeout" in err_msg.lower():
+            status_code = 504
+            user_msg = "The AI analysis timed out due to temporary service load. Please try again."
+        else:
+            user_msg = f"AI analysis failed: {err_msg}"
+        return jsonify({"error": user_msg}), status_code
 
     analysis_data = result["analysis"]
     grounding_data = result.get("grounding", [])
@@ -217,7 +230,17 @@ def follow_up():
         })
     except Exception as e:
         logger.error(f"Follow up failed: {e}")
-        return jsonify({"error": f"Failed to answer follow-up: {str(e)}"}), 500
+        err_msg = str(e)
+        status_code = 500
+        if "503" in err_msg or "UNAVAILABLE" in err_msg or "high demand" in err_msg:
+            status_code = 503
+            user_msg = "The AI service is temporarily busy. Please try asking again shortly."
+        elif "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+            status_code = 429
+            user_msg = "Rate limit reached. Please wait a moment and try again."
+        else:
+            user_msg = f"Failed to answer follow-up: {err_msg}"
+        return jsonify({"error": user_msg}), status_code
 
 
 @app.route("/api/tts", methods=["POST"])
